@@ -1,5 +1,7 @@
 package org.financial_tracker.features.user;
 
+import org.financial_tracker.features.user.DTO.CreateUserRequest;
+
 public class UserService {
   private final UserRepository userRepository;
 
@@ -7,10 +9,23 @@ public class UserService {
     this.userRepository = userRepository;
   }
 
-  public void registerUser(String fullName, String username, String password, String position, Role role) {
-    if (username == null || username.isBlank()) {
+  public User registerUser(CreateUserRequest req) {
+    validate(req);
+    return userRepository.save(req.full_name(), req.username(), req.password(), req.position(), req.role());
+  }
+
+  private void validate(CreateUserRequest req) {
+    if (req.username() == null || req.username().isBlank()) {
       throw new IllegalArgumentException("Username cannot be empty");
     }
-    userRepository.save(fullName, username, password, position, role);
+    if (req.password() == null || req.password().isBlank()) {
+      throw new IllegalArgumentException("Password cannot be empty");
+    }
+    if (req.full_name() == null || req.full_name().isBlank()) {
+      throw new IllegalArgumentException("Full name cannot be empty");
+    }
+    if (req.position() == null || req.position().isBlank()) {
+      throw new IllegalArgumentException("Position cannot be empty");
+    }
   }
 }
