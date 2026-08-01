@@ -4,9 +4,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.sql.DataSource;
+
+import org.financial_tracker.features.user.DTO.UserCredentials;
 
 public class UserRepository {
   private final DataSource dataSource;
@@ -39,6 +42,23 @@ public class UserRepository {
 
     } catch (SQLException e) {
       throw new RuntimeException("Database error while creating user: " + e.getMessage(), e);
+    }
+  }
+
+  public Optional<UserCredentials> findByUsername(String username) {
+    String sql = "SELECT username, password_hash FROM users WHERE username = ?";
+    try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+      stmt.setString(1, username);
+      try (ResultSet rs = stmt.executeQuery()) {
+        if (rs.next()) {
+          return Optional.of(new UserCredentials(
+              rs.getString("username"),
+              rs.getString("password_hash")));
+        }
+        return Optional.empty();
+      }
+    } catch (SQLException e) {
+      throw new RuntimeException("Database error while fetching credentials", e);
     }
   }
 }
