@@ -14,6 +14,7 @@ public class UserRoutes implements EndpointGroup {
   public void addEndpoints() {
     ApiBuilder.path("/users", () -> {
       ApiBuilder.post("/signup", userController::createUser);
+      ApiBuilder.post("/login", userController::loginUser);
     });
   }
 }
