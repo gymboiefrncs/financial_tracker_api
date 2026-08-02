@@ -9,7 +9,9 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
-import org.financial_tracker.features.user.DTO.UserCredentials;
+import org.financial_tracker.features.user.DTO.CreateUserResponse;
+import org.financial_tracker.features.user.DTO.LoginResponse;
+import org.financial_tracker.features.user.DTO.UserAuthData;
 
 public class UserRepository {
   private final DataSource dataSource;
@@ -18,7 +20,7 @@ public class UserRepository {
     this.dataSource = dataSource;
   }
 
-  public User save(String fullName, String username, String password, String position, Role role) {
+  public CreateUserResponse save(String fullName, String username, String password, String position, Role role) {
     String sql = "INSERT INTO users (full_name, username, password_hash, position, role) VALUES (?,?, ?, ?, ?::user_role) RETURNING id, full_name, username, position";
 
     try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -33,7 +35,7 @@ public class UserRepository {
         if (!rs.next()) {
           throw new SQLException("Creating user failed, no rows returned.");
         }
-        return new User(
+        return new CreateUserResponse(
             rs.getObject("id", UUID.class),
             rs.getString("full_name"),
             rs.getString("username"),
@@ -45,14 +47,15 @@ public class UserRepository {
     }
   }
 
-  public Optional<UserCredentials> findByUsername(String username) {
-    String sql = "SELECT username, password_hash FROM users WHERE username = ?";
+  public Optional<UserAuthData> findByUsername(String username) {
+    String sql = "SELECT username, full_name, password_hash FROM users WHERE username = ?";
     try (Connection conn = dataSource.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
       stmt.setString(1, username);
       try (ResultSet rs = stmt.executeQuery()) {
         if (rs.next()) {
-          return Optional.of(new UserCredentials(
+          return Optional.of(new UserAuthData(
               rs.getString("username"),
+              rs.getString("full_name"),
               rs.getString("password_hash")));
         }
         return Optional.empty();
