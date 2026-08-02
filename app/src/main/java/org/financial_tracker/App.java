@@ -12,6 +12,8 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import io.javalin.Javalin;
+import io.javalin.openapi.plugin.OpenApiPlugin;
+import io.javalin.openapi.plugin.swagger.SwaggerPlugin;
 
 public class App {
     public static void main(String[] args) {
@@ -38,6 +40,17 @@ public class App {
             javalinConfig.bundledPlugins.enableCors(cors -> {
                 cors.addRule(rule -> rule.anyHost());
             });
+
+            javalinConfig.registerPlugin(new OpenApiPlugin(pluginConfig -> {
+                pluginConfig.withDefinitionConfiguration((version, definition) -> {
+                    definition.info(info -> {
+                        info.title("Financial Tracker API");
+                        info.version("1.0.0");
+                    });
+                });
+            }));
+
+            javalinConfig.registerPlugin(new SwaggerPlugin());
 
             javalinConfig.routes.apiBuilder(appRoutes);
         }).start(envConfig.port());

@@ -31,6 +31,10 @@ dependencies {
     implementation 'org.postgresql:postgresql:42.7.5'
     implementation 'org.slf4j:slf4j-simple:2.0.17'
     implementation 'com.zaxxer:HikariCP:6.2.0'
+    implementation("io.javalin.community.openapi:javalin-openapi-plugin:7.2.2")
+    implementation("io.javalin.community.openapi:javalin-swagger-plugin:7.2.2")
+
+    annotationProcessor 'io.javalin.community.openapi:openapi-annotation-processor:7.2.2'
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
