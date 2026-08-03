@@ -6,6 +6,10 @@ import org.financial_tracker.features.auth.AuthController;
 import org.financial_tracker.features.auth.AuthRepository;
 import org.financial_tracker.features.auth.AuthRoutes;
 import org.financial_tracker.features.auth.AuthService;
+import org.financial_tracker.features.profile.ProfileController;
+import org.financial_tracker.features.profile.ProfileRepository;
+import org.financial_tracker.features.profile.ProfileRoutes;
+import org.financial_tracker.features.profile.ProfileService;
 import org.financial_tracker.features.user.UserController;
 import org.financial_tracker.features.user.UserRepository;
 import org.financial_tracker.features.user.UserRoutes;
@@ -45,17 +49,28 @@ public class App {
         AuthController authController = new AuthController(authService);
         AuthRoutes authRoutes = new AuthRoutes(authController);
 
+        ProfileRepository profileRepository = new ProfileRepository(dataSource);
+        ProfileService profileService = new ProfileService(profileRepository);
+        ProfileController profileController = new ProfileController(profileService);
+        ProfileRoutes profileRoutes = new ProfileRoutes(profileController);
+
         AuthMiddleware authMiddleware = new AuthMiddleware(authRepository, userRepository);
         RoleMiddleware roleMiddleware = new RoleMiddleware();
 
-        AppRoutes appRoutes = new AppRoutes(userRoutes, authRoutes);
+        AppRoutes appRoutes = new AppRoutes(userRoutes, authRoutes, profileRoutes);
 
         Javalin.create(javalinConfig -> {
-            javalinConfig.routes.before("/api/admin/*", authMiddleware::requireAuth);
+            javalinConfig.routes.before("/api/*", ctx -> {
+                if (!ctx.path().startsWith("/api/auth/")) {
+                    authMiddleware.requireAuth(ctx);
+                }
+            });
             javalinConfig.routes.before("/api/admin/*", roleMiddleware::requireAdmin);
 
             javalinConfig.bundledPlugins.enableCors(cors -> {
-                cors.addRule(rule -> rule.anyHost());
+                cors.addRule(rule -> {
+                    rule.allowHost("http://localhost:5173");
+                });
             });
 
             javalinConfig.registerPlugin(new OpenApiPlugin(pluginConfig -> {
