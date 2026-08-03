@@ -70,6 +70,7 @@ public class App {
             javalinConfig.bundledPlugins.enableCors(cors -> {
                 cors.addRule(rule -> {
                     rule.allowHost("http://localhost:5173");
+                    rule.allowCredentials = true;
                 });
             });
 
