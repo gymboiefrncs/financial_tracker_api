@@ -2,10 +2,16 @@ package org.financial_tracker;
 
 import org.financial_tracker.config.Database;
 import org.financial_tracker.config.Env;
+import org.financial_tracker.features.auth.AuthController;
+import org.financial_tracker.features.auth.AuthRepository;
+import org.financial_tracker.features.auth.AuthRoutes;
+import org.financial_tracker.features.auth.AuthService;
 import org.financial_tracker.features.user.UserController;
 import org.financial_tracker.features.user.UserRepository;
 import org.financial_tracker.features.user.UserRoutes;
 import org.financial_tracker.features.user.UserService;
+import org.financial_tracker.middleware.AuthMiddleware;
+import org.financial_tracker.middleware.RoleMiddleware;
 import org.financial_tracker.routes.AppRoutes;
 
 import com.zaxxer.hikari.HikariConfig;
@@ -34,9 +40,20 @@ public class App {
         UserController userController = new UserController(userService);
         UserRoutes userRoutes = new UserRoutes(userController);
 
-        AppRoutes appRoutes = new AppRoutes(userRoutes);
+        AuthRepository authRepository = new AuthRepository(dataSource);
+        AuthService authService = new AuthService(authRepository);
+        AuthController authController = new AuthController(authService);
+        AuthRoutes authRoutes = new AuthRoutes(authController);
+
+        AuthMiddleware authMiddleware = new AuthMiddleware(authRepository, userRepository);
+        RoleMiddleware roleMiddleware = new RoleMiddleware();
+
+        AppRoutes appRoutes = new AppRoutes(userRoutes, authRoutes);
 
         Javalin.create(javalinConfig -> {
+            javalinConfig.routes.before("/api/admin/*", authMiddleware::requireAuth);
+            javalinConfig.routes.before("/api/admin/*", roleMiddleware::requireAdmin);
+
             javalinConfig.bundledPlugins.enableCors(cors -> {
                 cors.addRule(rule -> rule.anyHost());
             });
@@ -53,6 +70,7 @@ public class App {
             javalinConfig.registerPlugin(new SwaggerPlugin());
 
             javalinConfig.routes.apiBuilder(appRoutes);
+
         }).start(envConfig.port());
 
         System.out.println("Javalin Application successfully spawned on port " + envConfig.port());
