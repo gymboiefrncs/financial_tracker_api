@@ -1,4 +1,4 @@
-package org.financial_tracker.features.user.DTO;
+package org.financial_tracker.features.auth.DTO;
 
 /**
  * LoginUserRequest
