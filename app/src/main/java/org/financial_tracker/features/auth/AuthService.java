@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.financial_tracker.features.auth.DTO.LoginRequest;
 import org.financial_tracker.features.auth.DTO.LoginResponse;
 import org.financial_tracker.features.auth.DTO.UserAuthData;
+import org.financial_tracker.features.user.Role;
 
 public class AuthService {
   private final AuthRepository authRepository;
@@ -32,6 +33,7 @@ public class AuthService {
     return Optional.of(new LoginResponse(
         credentials.username(),
         credentials.fullName(),
+        credentials.role(),
         session.id()));
   }
 
