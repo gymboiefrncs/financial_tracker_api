@@ -18,7 +18,7 @@ public class UserController {
     this.userService = userService;
   }
 
-  @OpenApi(path = "/users/signup", methods = HttpMethod.POST, summary = "Create user", requestBody = @OpenApiRequestBody(content = @OpenApiContent(from = CreateUserRequest.class)), responses = {
+  @OpenApi(path = "/admin/users/signup", methods = HttpMethod.POST, summary = "Create user", requestBody = @OpenApiRequestBody(content = @OpenApiContent(from = CreateUserRequest.class)), responses = {
       @OpenApiResponse(status = "201", content = @OpenApiContent(from = CreateUserResponse.class))
   })
   public void createUser(Context ctx) {
