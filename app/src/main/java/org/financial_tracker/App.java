@@ -2,6 +2,10 @@ package org.financial_tracker;
 
 import org.financial_tracker.config.Database;
 import org.financial_tracker.config.Env;
+import org.financial_tracker.features.academicyear.AcademicYearController;
+import org.financial_tracker.features.academicyear.AcademicYearRepository;
+import org.financial_tracker.features.academicyear.AcademicYearRoutes;
+import org.financial_tracker.features.academicyear.AcademicYearService;
 import org.financial_tracker.features.auth.AuthController;
 import org.financial_tracker.features.auth.AuthRepository;
 import org.financial_tracker.features.auth.AuthRoutes;
@@ -54,10 +58,15 @@ public class App {
         ProfileController profileController = new ProfileController(profileService);
         ProfileRoutes profileRoutes = new ProfileRoutes(profileController);
 
+        AcademicYearRepository academicYearRepository = new AcademicYearRepository(dataSource);
+        AcademicYearService academicYearService = new AcademicYearService(academicYearRepository);
+        AcademicYearController academicYearController = new AcademicYearController(academicYearService);
+        AcademicYearRoutes academicYearRoutes = new AcademicYearRoutes(academicYearController);
+
         AuthMiddleware authMiddleware = new AuthMiddleware(authRepository, userRepository);
         RoleMiddleware roleMiddleware = new RoleMiddleware();
 
-        AppRoutes appRoutes = new AppRoutes(userRoutes, authRoutes, profileRoutes);
+        AppRoutes appRoutes = new AppRoutes(userRoutes, authRoutes, profileRoutes, academicYearRoutes);
 
         Javalin.create(javalinConfig -> {
             javalinConfig.routes.before("/api/*", ctx -> {
