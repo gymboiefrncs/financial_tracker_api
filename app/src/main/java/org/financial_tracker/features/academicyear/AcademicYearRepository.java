@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -92,10 +93,11 @@ public class AcademicYearRepository {
 
   private AcademicYearResponse mapRow(ResultSet rs) throws SQLException {
     return new AcademicYearResponse(
-        (UUID) rs.getObject("id"),
+        rs.getObject("id", UUID.class),
         rs.getString("school_year"),
         rs.getBigDecimal("total_budget"),
         rs.getBigDecimal("remaining_budget"),
-        (UUID) rs.getObject("created_by"));
+        rs.getObject("created_by", UUID.class),
+        rs.getObject("created_at", OffsetDateTime.class));
   }
 }
