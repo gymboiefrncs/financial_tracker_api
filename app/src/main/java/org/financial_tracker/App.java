@@ -22,10 +22,14 @@ import org.financial_tracker.middleware.AuthMiddleware;
 import org.financial_tracker.middleware.RoleMiddleware;
 import org.financial_tracker.routes.AppRoutes;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import io.javalin.Javalin;
+import io.javalin.json.JavalinJackson;
 import io.javalin.openapi.plugin.OpenApiPlugin;
 import io.javalin.openapi.plugin.swagger.SwaggerPlugin;
 
@@ -68,7 +72,17 @@ public class App {
 
         AppRoutes appRoutes = new AppRoutes(userRoutes, authRoutes, profileRoutes, academicYearRoutes);
 
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
         Javalin.create(javalinConfig -> {
+            javalinConfig.jsonMapper(
+                    new JavalinJackson().updateMapper(mapper -> {
+                        mapper.registerModule(new JavaTimeModule());
+                        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+                    }));
+
             javalinConfig.routes.before("/api/*", ctx -> {
                 if (!ctx.path().startsWith("/api/auth/")) {
                     authMiddleware.requireAuth(ctx);
