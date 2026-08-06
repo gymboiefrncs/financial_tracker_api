@@ -23,7 +23,7 @@ public class AcademicYearController {
     this.service = service;
   }
 
-  @OpenApi(path = "/api/academic-years", methods = HttpMethod.POST, summary = "Create a new academic year", tags = {
+  @OpenApi(path = "/academic-years", methods = HttpMethod.POST, summary = "Create a new academic year", tags = {
       "Academic Years" }, requestBody = @OpenApiRequestBody(content = @OpenApiContent(from = CreateAcademicYearRequest.class)), responses = {
           @OpenApiResponse(status = "201", content = @OpenApiContent(from = AcademicYearResponse.class))
       })
@@ -40,7 +40,7 @@ public class AcademicYearController {
     }
   }
 
-  @OpenApi(path = "/api/academic-years", methods = HttpMethod.GET, summary = "Get all academic years", tags = {
+  @OpenApi(path = "/academic-years", methods = HttpMethod.GET, summary = "Get all academic years", tags = {
       "Academic Years" }, responses = {
           @OpenApiResponse(status = "200", content = @OpenApiContent(from = AcademicYearResponse[].class)),
       })
@@ -48,7 +48,7 @@ public class AcademicYearController {
     ctx.json(service.getAllAcademicYears());
   }
 
-  @OpenApi(path = "/api/academic-years/{id}", methods = HttpMethod.GET, summary = "Get academic year by ID", tags = {
+  @OpenApi(path = "/academic-years/{id}", methods = HttpMethod.GET, summary = "Get academic year by ID", tags = {
       "Academic Years" }, pathParams = {
           @OpenApiParam(name = "id", type = UUID.class, description = "Academic Year UUID")
       }, responses = {
